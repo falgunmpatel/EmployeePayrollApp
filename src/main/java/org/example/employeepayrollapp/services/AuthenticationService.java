@@ -9,7 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationService implements IAuthInterface {
@@ -27,26 +26,26 @@ public class AuthenticationService implements IAuthInterface {
 
     public String register(AuthUserDTO user){
 
-        List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> user.getEmail().equals(authuser.getEmail())).collect(Collectors.toList());
+        List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> user.getEmail().equals(authuser.getEmail())).toList();
 
-        if(l1.size()>0){
+        if(!l1.isEmpty()){
             return "User already registered";
         }
 
         //creating hashed password using bcrypt
-        String hashPass = bCryptPasswordEncoder.encode(user.getPassword());
+        String hashPassword = bCryptPasswordEncoder.encode(user.getPassword());
 
         //creating new user
-        AuthUser newUser = new AuthUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), hashPass);
+        AuthUser newUser = new AuthUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), hashPassword);
 
         //setting the new hashed password
-        newUser.setHashPass(hashPass);
+        newUser.setHashPass(hashPassword);
 
         //saving the user in the database
         userRepository.save(newUser);
 
         //sending the confirmation mail to the user
-        emailService.sendEmail(user.getEmail(), "Your Account is Ready!", "UserName : "+user.getFirstName()+" "+user.getLastName()+"\nEmail : "+user.getEmail()+"\nYou are registered!\nBest Regards,\nBridgelabz Team");
+        emailService.sendEmail(user.getEmail(), "Your Account is Ready!", "UserName : "+user.getFirstName()+" "+user.getLastName()+"\nEmail : "+user.getEmail()+"\nYou are registered!\nBest Regards");
 
         return "user registered";
     }
@@ -54,11 +53,11 @@ public class AuthenticationService implements IAuthInterface {
 
     public String login(LoginDTO user){
 
-        List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> authuser.getEmail().equals(user.getEmail())).collect(Collectors.toList());
-        if(l1.size() == 0)
+        List<AuthUser> l1 = userRepository.findAll().stream().filter(authuser -> authuser.getEmail().equals(user.getEmail())).toList();
+        if(l1.isEmpty())
             return "User not registered";
 
-        AuthUser foundUser = l1.get(0);
+        AuthUser foundUser = l1.getFirst();
 
         //matching the stored hashed password with the password provided by user
 
@@ -84,18 +83,16 @@ public class AuthenticationService implements IAuthInterface {
         if(foundUser == null)
             throw new RuntimeException("user not registered!");
 
-        String hashpass = bCryptPasswordEncoder.encode(pass.getPassword());
+        String hashPassword = bCryptPasswordEncoder.encode(pass.getPassword());
 
         foundUser.setPassword(pass.getPassword());
-        foundUser.setHashPass(hashpass);
+        foundUser.setHashPass(hashPassword);
 
         userRepository.save(foundUser);
 
         emailService.sendEmail(email, "Password Forgot Status", "Your password has been changed!");
 
-        AuthUserDTO resDto = new AuthUserDTO(foundUser.getFirstName(), foundUser.getLastName(), foundUser.getEmail(), foundUser.getPassword(), foundUser.getId() );
-
-        return resDto;
+        return new AuthUserDTO(foundUser.getFirstName(), foundUser.getLastName(), foundUser.getEmail(), foundUser.getPassword(), foundUser.getId() );
     }
 
     public String resetPassword(String email, String currentPass, String newPass){
@@ -115,7 +112,7 @@ public class AuthenticationService implements IAuthInterface {
 
         emailService.sendEmail(email, "Password reset status", "Your password is reset successfully");
 
-        return "Password reset successfull!";
+        return "Password reset successful!";
     }
 
 
