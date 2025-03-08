@@ -2,16 +2,15 @@ package org.example.employeepayrollapp.services;
 
 import org.example.employeepayrollapp.dto.EmployeeDTO;
 import org.example.employeepayrollapp.entities.EmployeeEntity;
+import org.example.employeepayrollapp.interfaces.IEmployeeService;
 import org.example.employeepayrollapp.repositories.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmployeeService {
+public class EmployeeService implements IEmployeeService {
+  @Autowired
   EmployeeRepository employeeRepository;
-
-  public EmployeeService(EmployeeRepository employeeRepository) {
-    this.employeeRepository = employeeRepository;
-  }
 
   public EmployeeDTO get(Long id) {
 

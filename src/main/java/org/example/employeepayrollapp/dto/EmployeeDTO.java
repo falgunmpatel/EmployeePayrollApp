@@ -9,7 +9,6 @@ public class EmployeeDTO {
   public EmployeeDTO(String name, Long salary) {
     this.name = name;
     this.salary = salary;
-
     this.id = null;
   }
 
