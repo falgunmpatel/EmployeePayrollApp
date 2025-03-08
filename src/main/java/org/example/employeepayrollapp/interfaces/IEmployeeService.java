@@ -12,4 +12,6 @@ public interface IEmployeeService {
   EmployeeDTO edit(EmployeeDTO emp, Long id);
 
   String delete(Long id);
+
+  String clear();
 }
